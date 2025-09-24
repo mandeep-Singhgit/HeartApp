@@ -18,8 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(targetPage).classList.add('active');
             navButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
+            
+            // --- THIS IS THE FIX ---
             if (targetPage === 'graph') {
-                fetchLatestAssessmentAndDrawChart();
+                // Add a short delay to make sure the canvas is visible before drawing
+                setTimeout(fetchLatestAssessmentAndDrawChart, 100);
             }
         });
     });
@@ -112,10 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function drawSolutionChart(data) {
-        // --- THIS IS THE FIX ---
-        const ctx = document.getElementById('solutionChart').getContext('2d'); // Changed 'd' to '2d'
-       
-        
+        const ctx = document.getElementById('solutionChart').getContext('2d');
         const solutionList = document.getElementById('solutionList');
         let chartData, solutionText;
         if (data.riskLevel === "Low") {
