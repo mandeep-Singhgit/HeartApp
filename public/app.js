@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.riskPercentage = Math.min(score * 10, 100);
         displayResults(formData, riskFactors);
         try {
-            // CHANGED: Removed 'http://localhost:3000'
             const response = await fetch('/api/assessments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -99,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchLatestAssessmentAndDrawChart() {
         if (!latestAssessment) {
             try {
-                // CHANGED: Removed 'http://localhost:3000'
                 const response = await fetch(`/api/assessments/${userId}`);
                 const allData = await response.json();
                 if (allData.length > 0) {
@@ -113,9 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
         drawSolutionChart(latestAssessment);
     }
     
-    
     function drawSolutionChart(data) {
-        const ctx = document.getElementById('solutionChart').getContext('d');
+        // --- THIS IS THE FIX ---
+        const ctx = document.getElementById('solutionChart').getContext('2d'); // Changed 'd' to '2d'
+       
+        
         const solutionList = document.getElementById('solutionList');
         let chartData, solutionText;
         if (data.riskLevel === "Low") {
