@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Heart Risk Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="auth-body">
+
+    <div class="header-plate">
+        <div class="header-content">
+            <i class="fa-solid fa-heart-pulse icon"></i>
+            <div class="header-text">
+                <h1>Heart Disease Risk Analyzer</h1>
+                <p>Advanced Health Assessment Tool</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div id="login-form" class="auth-card">
+            <div class="auth-header">
+                <i class="fa-solid fa-heart-circle-plus icon"></i>
+                <h1>Welcome Back!</h1>
+                <p>Login to access the Health Analyzer.</p>
+            </div>
+            <form id="login">
+                <div class="form-group"><label for="login-email">Email Address</label><input type="email" id="login-email" placeholder="you@example.com" required></div>
+                <div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" placeholder="Enter your password" required></div>
+                <button type="submit" class="auth-btn"><span>➔</span><span>Login</span></button>
+            </form>
+            <div class="auth-switch">Don't have an account? <a href="#" id="show-register">Sign up here</a></div>
+        </div>
+
+        <div id="register-form" class="auth-card">
+            <div class="auth-header">
+                <i class="fa-solid fa-heart-circle-plus icon"></i>
+                <h1>Create Your Account</h1>
+                <p>Start your health assessment journey.</p>
+            </div>
+            <form id="register">
+                <div class="form-group"><label for="register-username">Username</label><input type="text" id="register-username" placeholder="Choose a username" required></div>
+                <div class="form-group"><label for="register-email">Email Address</label><input type="email" id="register-email" placeholder="you@example.com" required></div>
+                <div class="form-group"><label for="register-password">Password</label><input type="password" id="register-password" placeholder="Create a strong password" required></div>
+                <button type="submit" class="auth-btn"><span>👤</span><span>Create Account</span></button>
+            </form>
+            <div class="auth-switch">Already have an account? <a href="#" id="show-login">Login here</a></div>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
