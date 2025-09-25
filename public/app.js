@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             navButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
+            // --- THIS IS THE FIX ---
             if (targetPage === 'graph') {
+                // Add a short delay to make sure the canvas is visible before drawing
                 setTimeout(fetchLatestAssessmentAndDrawChart, 100);
             }
         });
@@ -27,15 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     riskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        // --- THIS IS THE FIX ---
-        // Now reading the height and weight fields from the form
         const formData = {
             userId: userId,
             age: parseInt(document.getElementById("age").value),
             gender: document.getElementById("gender").value,
-            height_ft: parseFloat(document.getElementById("height_ft").value) || 0,
-            weight_kg: parseFloat(document.getElementById("weight_kg").value) || 0,
             systolic: parseInt(document.getElementById("systolic").value),
             diastolic: parseInt(document.getElementById("diastolic").value),
             cholesterol: parseInt(document.getElementById("cholesterol").value),
@@ -45,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
             exercise: document.getElementById("exercise").value,
             familyHistory: document.getElementById("familyHistory").value === "yes",
         };
-        
         let score = 0;
         let riskFactors = [];
         if (formData.age > 50) { score += 2; riskFactors.push("Older age"); }

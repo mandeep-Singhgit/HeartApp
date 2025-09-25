@@ -3,114 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heart Disease Risk Analyzer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Welcome - Heart Risk Analyzer</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body>
-    <div class="header-template">
-        <header class="main-header">
-            <div class="logo">
-                <i class="fas fa-heart-pulse"></i>
-                <div class="header-text-container">
-                    <h1>Heart Disease Risk Analyzer</h1>
-                    <p class="tagline">Advanced Health Assessment Tool</p>
-                </div>
+<body class="auth-body">
+    <div class="header-plate">
+        <div class="header-content">
+            <i class="fa-solid fa-heart-pulse icon"></i>
+            <div class="header-text">
+                <h1>Heart Disease Risk Analyzer</h1>
+                <p>Advanced Health Assessment Tool</p>
             </div>
-            <div class="auth-links">
-                <a href="#" id="logoutBtn" style="display: none;">Logout</a>
-            </div>
-        </header>
-        <nav class="main-nav" style="display: none;">
-            <button class="nav-btn active" data-page="home">Home / Risk Assessment</button>
-            <button class="nav-btn" data-page="graph">Solutions & Graph</button>
-        </nav>
+        </div>
     </div>
-
-    <main class="main-content">
-        <div id="login" class="page auth-page active">
-            <div class="auth-card">
-                <h2><i class="fas fa-sign-in-alt"></i> Welcome Back!</h2>
-                <form id="loginForm">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="loginEmail" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Login</button>
-                    <p>Don't have an account? <a href="#" id="showRegister">Register here</a></p>
-                </form>
+    <div class="auth-container">
+        <div id="login-form" class="auth-card">
+            <div class="auth-header">
+                <i class="fa-solid fa-heart-circle-plus icon"></i>
+                <h1>Welcome Back!</h1>
+                <p>Login to access the Health Analyzer.</p>
             </div>
+            <form id="login">
+                <div class="form-group"><label for="login-email">Email Address</label><input type="email" id="login-email" placeholder="you@example.com" required></div>
+                <div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" placeholder="Enter your password" required></div>
+                <button type="submit" class="auth-btn"><span>➔</span><span>Login</span></button>
+            </form>
+            <div class="auth-switch">Don't have an account? <a href="#" id="show-register">Sign up here</a></div>
         </div>
-
-        <div id="register" class="page auth-page">
-            <div class="auth-card">
-                <h2><i class="fas fa-user-plus"></i> Create Account</h2>
-                <form id="registerForm">
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="registerUsername" placeholder="Username" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="registerEmail" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="registerPassword" placeholder="Password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Register</button>
-                    <p>Already have an account? <a href="#" id="showLogin">Login here</a></p>
-                </form>
+        <div id="register-form" class="auth-card">
+            <div class="auth-header">
+                <i class="fa-solid fa-heart-circle-plus icon"></i>
+                <h1>Create Your Account</h1>
+                <p>Start your health assessment journey.</p>
             </div>
+            <form id="register">
+                <div class="form-group"><label for="register-username">Username</label><input type="text" id="register-username" placeholder="Choose a username" required></div>
+                <div class="form-group"><label for="register-email">Email Address</label><input type="email" id="register-email" placeholder="you@example.com" required></div>
+                <div class="form-group"><label for="register-password">Password</label><input type="password" id="register-password" placeholder="Create a strong password" required></div>
+                <button type="submit" class="auth-btn"><span>👤</span><span>Create Account</span></button>
+            </form>
+            <div class="auth-switch">Already have an account? <a href="#" id="show-login">Login here</a></div>
         </div>
-
-        <div id="home" class="page">
-            <div class="card-container">
-                <div class="card risk-assessment-card">
-                    <h2 class="card-header"><i class="fas fa-calculator"></i> Risk Assessment</h2>
-                    <form id="riskForm">
-                        <div class="form-grid">
-                            <div class="form-group"><label for="age"><i class="fas fa-calendar-alt"></i> Age:</label><input type="number" id="age" min="1" max="120" placeholder="e.g., 45" required></div>
-                            <div class="form-group"><label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label><select id="gender" required><option value="">Select</option><option value="male">Male</option><option value="female">Female</option></select></div>
-                            <div class="form-group"><label for="systolic"><i class="fas fa-heartbeat"></i> Systolic BP:</label><input type="number" id="systolic" min="70" max="200" placeholder="e.g., 120" required></div>
-                            <div class="form-group"><label for="diastolic"><i class="fas fa-heartbeat"></i> Diastolic BP:</label><input type="number" id="diastolic" min="40" max="120" placeholder="e.g., 80" required></div>
-                            <div class="form-group"><label for="cholesterol"><i class="fas fa-tint"></i> Cholesterol:</label><input type="number" id="cholesterol" min="100" max="400" placeholder="e.g., 200" required></div>
-                            <div class="form-group"><label for="glucose"><i class="fas fa-vial"></i> Glucose:</label><input type="number" id="glucose" min="50" max="300" placeholder="e.g., 90" required></div>
-                            <div class="form-group toggle-group"><label for="smoking"><i class="fas fa-smoking"></i> Smoking:</label><div class="toggle-switch"><input type="checkbox" id="smoking"><label for="smoking"></label></div></div>
-                            <div class="form-group toggle-group"><label for="diabetes"><i class="fas fa-notes-medical"></i> Diabetes:</label><div class="toggle-switch"><input type="checkbox" id="diabetes"><label for="diabetes"></label></div></div>
-                            <div class="form-group"><label for="exercise"><i class="fas fa-running"></i> Exercise:</label><select id="exercise" required><option value="none">None</option><option value="light">Light (1-2/wk)</option><option value="moderate">Moderate (3-4/wk)</option><option value="high">High (5+/wk)</option></select></div>
-                            <div class="form-group toggle-group"><label for="familyHistory"><i class="fas fa-users"></i> Family History:</label><div class="toggle-switch"><input type="checkbox" id="familyHistory"><label for="familyHistory"></label></div></div>
-                        </div>
-                        <button type="submit" class="btn-primary calculate-btn"><i class="fas fa-calculator"></i> Calculate Risk & Save</button>
-                    </form>
-                </div>
-                <div id="results" class="card risk-profile-card" style="display: none;">
-                    <h2 class="card-header"><i class="fas fa-chart-pie"></i> Your Risk Profile</h2>
-                    <div class="risk-summary"><div class="risk-score-display"><span id="riskScore">0%</span></div><p id="riskMessage" class="risk-level"></p></div>
-                    <h3><i class="fas fa-exclamation-triangle"></i> Identified Risk Factors:</h3><ul id="riskFactors" class="risk-factors-list"></ul>
-                    <h3><i class="fas fa-lightbulb"></i> Recommendations:</h3><p id="recommendations" class="recommendations-text"></p>
-                </div>
-            </div>
-        </div>
-
-        <div id="graph" class="page">
-            <div class="card-container graph-page-container">
-                <div class="card graph-card">
-                    <h2 class="card-header"><i class="fas fa-chart-line"></i> Your Personalized Solution Plan</h2>
-                    <div class="chart-container"><canvas id="solutionChart"></canvas></div>
-                </div>
-                <div class="card action-plan-card">
-                    <h2 class="card-header"><i class="fas fa-clipboard-list"></i> Your Weekly Action Plan</h2>
-                    <ul id="solutionList" class="weekly-action-list"></ul>
-                </div>
-            </div>
-        </div>
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="app.js"></script>
+    </div>
+    <script src="auth.js"></script>
 </body>
 </html>
