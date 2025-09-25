@@ -21,12 +21,25 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+// --- THIS IS THE FIX ---
+// Added height_ft and weight_kg to the schema
 const assessmentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    age: Number, gender: String, systolic: Number, diastolic: Number,
-    cholesterol: Number, glucose: Number, smoking: Boolean, diabetes: Boolean,
-    exercise: String, familyHistory: Boolean, riskScore: Number,
-    riskPercentage: Number, riskLevel: String,
+    age: Number,
+    gender: String,
+    height_ft: Number,
+    weight_kg: Number,
+    systolic: Number,
+    diastolic: Number,
+    cholesterol: Number,
+    glucose: Number,
+    smoking: Boolean,
+    diabetes: Boolean,
+    exercise: String,
+    familyHistory: Boolean,
+    riskScore: Number,
+    riskPercentage: Number,
+    riskLevel: String,
     createdAt: { type: Date, default: Date.now }
 });
 const Assessment = mongoose.model('assessments', assessmentSchema);
@@ -67,20 +80,15 @@ app.get('/api/assessments/:userId', async (req, res) => {
     } catch (error) { res.status(500).json({ message: 'Error fetching assessments' }); }
 });
 
-// Serve static files like CSS, JS, and images from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- THIS IS THE FIX ---
-// This tells the server to send home.html if someone goes to /home.html
 app.get('/home.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
-// This is the main catch-all for the login page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
