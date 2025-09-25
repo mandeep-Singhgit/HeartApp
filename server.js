@@ -9,11 +9,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// --- DATABASE CONNECTION ---
 const connectionString = process.env.MONGO_URI;
 mongoose.connect(connectionString)
   .then(() => console.log("✅ Successfully connected to MongoDB Atlas!"))
   .catch(err => console.error("❌ Connection error", err));
 
+// --- DATA SCHEMAS ---
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -21,8 +23,6 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
-// --- THIS IS THE FIX ---
-// Added height_ft and weight_kg to the schema
 const assessmentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     age: Number,
@@ -44,6 +44,7 @@ const assessmentSchema = new mongoose.Schema({
 });
 const Assessment = mongoose.model('assessments', assessmentSchema);
 
+// --- API ROUTES (These come first) ---
 app.post('/api/auth/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
@@ -80,15 +81,16 @@ app.get('/api/assessments/:userId', async (req, res) => {
     } catch (error) { res.status(500).json({ message: 'Error fetching assessments' }); }
 });
 
+
+// --- THIS IS THE FIX ---
+// This part serves your static files like style.css, app.js, etc.
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/home.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'home.html'));
-});
-
-app.get('/', (req, res) => {
+// This part serves your HTML pages and MUST come AFTER the static file server
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
