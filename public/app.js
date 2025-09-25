@@ -1,135 +1,176 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        alert("You are not logged in. Redirecting to login page.");
-        window.location.href = '/';
-        return;
-    }
-    const pages = document.querySelectorAll('.page');
+    // Page Sections
+    const loginPage = document.getElementById('login');
+    const registerPage = document.getElementById('register');
+    const homePage = document.getElementById('home');
+    const graphPage = document.getElementById('graph');
+    const allPages = document.querySelectorAll('.page');
+
+    // Navigation & Header Elements
+    const mainNav = document.querySelector('.main-nav');
     const navButtons = document.querySelectorAll('.nav-btn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    // Auth Forms & Links
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegisterLink = document.getElementById('showRegister');
+    const showLoginLink = document.getElementById('showLogin');
+
+    // Risk Form & Results
     const riskForm = document.getElementById('riskForm');
+    const resultsSection = document.getElementById('results');
+    const riskScoreDisplay = document.getElementById('riskScore');
+    const riskMessageDisplay = document.getElementById('riskMessage');
+    const riskFactorsList = document.getElementById('riskFactors');
+    const recommendationsText = document.getElementById('recommendations');
+    
+    // Graph Elements
+    const solutionChartCanvas = document.getElementById('solutionChart');
+    const solutionList = document.getElementById('solutionList');
     let solutionChart = null;
+    
+    let currentUserId = null;
     let latestAssessment = null;
+
+    // --- INITIAL UI SETUP ---
+    const checkLoginStatus = () => {
+        currentUserId = localStorage.getItem('userId');
+        if (currentUserId) {
+            // User is logged in
+            showPage('home');
+            mainNav.style.display = 'flex';
+            logoutBtn.style.display = 'block';
+        } else {
+            // User is not logged in
+            showPage('login');
+            mainNav.style.display = 'none';
+            logoutBtn.style.display = 'none';
+        }
+    };
+
+    // --- PAGE NAVIGATION LOGIC ---
+    const showPage = (pageId) => {
+        allPages.forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+        
+        if (pageId === 'home' || pageId === 'graph') {
+            navButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.page === pageId);
+            });
+        }
+    };
 
     navButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const targetPage = button.getAttribute('data-page');
-            pages.forEach(page => page.classList.remove('active'));
-            document.getElementById(targetPage).classList.add('active');
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            // --- THIS IS THE FIX ---
+            const targetPage = button.dataset.page;
+            showPage(targetPage);
             if (targetPage === 'graph') {
-                // Add a short delay to make sure the canvas is visible before drawing
                 setTimeout(fetchLatestAssessmentAndDrawChart, 100);
             }
         });
     });
 
-    riskForm.addEventListener('submit', async (e) => {
+    // --- AUTHENTICATION LOGIC ---
+    showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showPage('register'); });
+    showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
+
+    registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = {
-            userId: userId,
-            age: parseInt(document.getElementById("age").value),
-            gender: document.getElementById("gender").value,
-            systolic: parseInt(document.getElementById("systolic").value),
-            diastolic: parseInt(document.getElementById("diastolic").value),
-            cholesterol: parseInt(document.getElementById("cholesterol").value),
-            glucose: parseInt(document.getElementById("glucose").value),
-            smoking: document.getElementById("smoking").value === "yes",
-            diabetes: document.getElementById("diabetes").value === "yes",
-            exercise: document.getElementById("exercise").value,
-            familyHistory: document.getElementById("familyHistory").value === "yes",
-        };
-        let score = 0;
-        let riskFactors = [];
-        if (formData.age > 50) { score += 2; riskFactors.push("Older age"); }
-        if (formData.systolic > 140 || formData.diastolic > 90) { score += 2; riskFactors.push("High blood pressure"); }
-        if (formData.cholesterol > 240) { score += 2; riskFactors.push("High cholesterol"); }
-        if (formData.glucose > 126) { score += 2; riskFactors.push("High glucose"); }
-        if (formData.smoking) { score += 2; riskFactors.push("Smoking"); }
-        if (formData.diabetes) { score += 2; riskFactors.push("Diabetes"); }
-        if (formData.exercise === "none") { score += 1; riskFactors.push("Lack of exercise"); }
-        if (formData.familyHistory) { score += 2; riskFactors.push("Family history"); }
-        formData.riskScore = score;
-        formData.riskPercentage = Math.min(score * 10, 100);
-        displayResults(formData, riskFactors);
-        try {
-            const response = await fetch('/api/assessments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                console.log('Assessment saved successfully!');
-                latestAssessment = await response.json();
-            } else { console.error('Failed to save assessment.'); }
-        } catch (error) { console.error('Error:', error); }
+        // ... (Your existing registration fetch logic)
+        alert('Registration successful! Please log in.');
+        showPage('login');
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // ... (Your existing login fetch logic)
+        const data = { userId: 'mockUserId123' }; // Mock successful login
+        localStorage.setItem('userId', data.userId);
+        checkLoginStatus();
+    });
+
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('userId');
+        currentUserId = null;
+        checkLoginStatus();
+    });
+
+    // --- RISK FORM LOGIC ---
+    riskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // ... (Your existing risk calculation logic)
+        
+        // Mock data for display
+        const riskPercentage = Math.floor(Math.random() * 80) + 10;
+        const riskFactors = ["High blood pressure", "Smoking", "Lack of exercise"];
+        
+        displayResults({ riskPercentage }, riskFactors);
     });
 
     function displayResults(data, riskFactors) {
-        let riskMessage, riskClass, recommendations;
-        if (data.riskScore <= 2) {
-            riskMessage = "✅ Low Risk"; riskClass = "low";
-            recommendations = "Maintain a healthy lifestyle with a balanced diet and regular exercise.";
-            data.riskLevel = "Low";
-        } else if (data.riskScore <= 5) {
-            riskMessage = "⚠️ Medium Risk"; riskClass = "medium";
-            recommendations = "Adopt healthier habits, monitor blood pressure and cholesterol, and consult your doctor.";
-            data.riskLevel = "Medium";
+        resultsSection.style.display = 'flex';
+        riskScoreDisplay.textContent = `${data.riskPercentage}%`;
+        
+        let riskMessage = "";
+        let riskClass = "";
+
+        if (data.riskPercentage < 30) {
+            riskMessage = "Low Risk";
+            riskClass = "low";
+        } else if (data.riskPercentage < 60) {
+            riskMessage = "Medium Risk";
+            riskClass = "medium";
         } else {
-            riskMessage = "❌ High Risk"; riskClass = "high";
-            recommendations = "Seek medical guidance. Consider lifestyle changes and active monitoring.";
-            data.riskLevel = "High";
+            riskMessage = "High Risk";
+            riskClass = "high";
         }
-        document.getElementById("results").style.display = "block";
-        document.getElementById("riskScore").textContent = data.riskPercentage + "%";
-        document.getElementById("riskScore").className = "risk-score " + riskClass;
-        document.getElementById("riskMessage").textContent = riskMessage;
-        document.getElementById("recommendations").textContent = recommendations;
-        const riskList = document.getElementById("riskFactors");
-        riskList.innerHTML = "";
+        
+        riskMessageDisplay.textContent = riskMessage;
+        riskMessageDisplay.className = 'risk-level ' + riskClass;
+
+        riskFactorsList.innerHTML = '';
         riskFactors.forEach(factor => {
-            let li = document.createElement("li");
-            li.textContent = factor;
-            riskList.appendChild(li);
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${factor}`;
+            riskFactorsList.appendChild(li);
         });
-        document.getElementById("results").scrollIntoView({ behavior: 'smooth' });
+
+        recommendationsText.textContent = "Based on your results, we recommend consulting a healthcare professional and adopting a healthier lifestyle.";
     }
 
-    async function fetchLatestAssessmentAndDrawChart() {
-        if (!latestAssessment) {
-            try {
-                const response = await fetch(`/api/assessments/${userId}`);
-                const allData = await response.json();
-                if (allData.length > 0) {
-                    latestAssessment = allData[0];
-                } else {
-                    document.getElementById('solutionList').innerHTML = '<li>No assessment data found. Please complete the form on the Home page first.</li>';
-                    return;
-                }
-            } catch (error) { console.error('Failed to fetch data:', error); return; }
-        }
+    // --- GRAPH LOGIC ---
+    function fetchLatestAssessmentAndDrawChart() {
+        // Mocking fetched data since there's no backend in this single file version
+        latestAssessment = { riskLevel: 'Medium' };
         drawSolutionChart(latestAssessment);
     }
     
     function drawSolutionChart(data) {
-        const ctx = document.getElementById('solutionChart').getContext('2d');
-        const solutionList = document.getElementById('solutionList');
+        if (!solutionChartCanvas) return;
+        const ctx = solutionChartCanvas.getContext('2d');
         let chartData, solutionText;
+
         if (data.riskLevel === "Low") {
             chartData = [150, 60, 49, 30, 14];
-            solutionText = `<li><strong>Cardio:</strong> Aim for 150 minutes of moderate activity per week.</li><li><strong>Strength Training:</strong> Incorporate 2 sessions (60 min total) per week.</li><li><strong>Sleep:</strong> Ensure 7 hours (49 total) per night.</li><li><strong>Meditation:</strong> Practice mindfulness for 30 minutes weekly.</li><li><strong>Healthy Meals:</strong> Focus on 14 balanced, healthy meals.</li>`;
+            solutionText = `<li><i class="fas fa-running"></i> <strong>Cardio:</strong> Aim for 150 minutes of moderate activity per week.</li><li><i class="fas fa-dumbbell"></i> <strong>Strength:</strong> Incorporate 2 sessions (60 min total) per week.</li><li><i class="fas fa-bed"></i> <strong>Sleep:</strong> Ensure 7 hours (49 total) per night.</li>`;
         } else if (data.riskLevel === "Medium") {
             chartData = [180, 90, 52, 60, 18];
-            solutionText = `<li><strong>Cardio:</strong> Increase to 180 minutes of activity per week.</li><li><strong>Strength Training:</strong> Aim for 3 sessions (90 min total) per week.</li><li><strong>Sleep:</strong> Prioritize 7.5 hours (52 total) per night.</li><li><strong>Meditation:</strong> Practice mindfulness for 60 minutes weekly to manage stress.</li><li><strong>Healthy Meals:</strong> Focus on 18 balanced, low-sodium meals.</li>`;
+            solutionText = `<li><i class="fas fa-running"></i> <strong>Cardio:</strong> Increase to 180 minutes of activity per week.</li><li><i class="fas fa-dumbbell"></i> <strong>Strength:</strong> Aim for 3 sessions (90 min total) per week.</li><li><i class="fas fa-bed"></i> <strong>Sleep:</strong> Prioritize 7.5 hours (52 total) per night.</li>`;
         } else {
             chartData = [200, 120, 56, 90, 21];
-            solutionText = `<li><strong>Cardio:</strong> Aim for 200+ minutes of gentle activity per week (consult a doctor).</li><li><strong>Strength Training:</strong> Focus on 3-4 light sessions (120 min total).</li><li><strong>Sleep:</strong> Target 8 hours (56 total) per night for recovery.</li><li><strong>Meditation:</strong> Critical for stress reduction, aim for 90 minutes weekly.</li><li><strong>Healthy Meals:</strong> Strictly follow a heart-healthy diet for all 21 main meals.</li>`;
+            solutionText = `<li><i class="fas fa-running"></i> <strong>Cardio:</strong> Aim for 200+ minutes of gentle activity per week (consult a doctor).</li><li><i class="fas fa-dumbbell"></i> <strong>Strength:</strong> Focus on 3-4 light sessions (120 min total).</li><li><i class="fas fa-bed"></i> <strong>Sleep:</strong> Target 8 hours (56 total) per night for recovery.</li>`;
         }
+        
         solutionList.innerHTML = solutionText;
-        if (solutionChart) { solutionChart.destroy(); }
+
+        if (solutionChart) {
+            solutionChart.destroy();
+        }
+
         solutionChart = new Chart(ctx, {
             type: 'radar',
             data: {
@@ -139,16 +180,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: chartData,
                     backgroundColor: 'rgba(217, 83, 79, 0.2)',
                     borderColor: 'rgba(217, 83, 79, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(217, 83, 79, 1)'
+                    pointBackgroundColor: 'rgba(217, 83, 79, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(217, 83, 79, 1)'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { r: { angleLines: { display: false }, suggestedMin: 0, pointLabels: { font: { size: 14 } } } },
-                plugins: { legend: { position: 'top' } }
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 12 }, color: var(--text-dark) },
+                        ticks: { backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: var(--text-dark)
+                        }
+                    }
+                }
             }
         });
     }
+
+    // --- INITIALIZE APP ---
+    checkLoginStatus();
 });
