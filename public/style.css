@@ -36,9 +36,19 @@ body {
     height: 100px;
 }
 .header-content { display: flex; align-items: center; gap: 20px; color: var(--text-primary); }
-.header-content .icon { font-size: 3rem; }
-.header-text h1 { font-size: 1.8rem; font-weight: 700; margin: 0; }
-.header-text p { font-size: 1rem; margin: 5px 0 0 0; opacity: 0.9; }
+.header-content .icon { font-size: 3rem; text-shadow: 0 0 15px rgba(255, 71, 87, 0.7); /* GLOW FOR HEADER ICON */ }
+.header-text h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.5); /* GLOW FOR H1 TEXT */
+}
+.header-text p {
+    font-size: 1rem;
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+    text-shadow: 0 0 8px rgba(255, 71, 87, 0.4); /* SLIGHT GLOW FOR P TEXT */
+}
 
 /* --- LOGIN / SIGNUP PAGE STYLES --- */
 .auth-body {
@@ -46,7 +56,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    padding-top: 140px; /* THIS IS THE FIX: Adds space for the header */
+    padding-top: 140px;
 }
 .auth-container { max-width: 400px; width: 100%; margin: auto; }
 .auth-card {
