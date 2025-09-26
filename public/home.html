@@ -21,8 +21,8 @@
 
     <main class="main-content">
         <div class="app-container">
-            <div class="left-column">
-                <div class="card glass-card">
+            <div class="top-row">
+                <div class="card glass-card" id="risk-assessment-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-file-medical"></i> Risk Assessment</h2>
                     </div>
@@ -42,10 +42,8 @@
                         <div><button type="submit" class="predict-btn"><span>Calculate & Analyze</span><i class="fa-solid fa-arrow-right"></i></button></div>
                     </form>
                 </div>
-            </div>
 
-            <div class="right-column">
-                <div class="card glass-card">
+                <div class="card glass-card" id="risk-profile-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-chart-pie"></i> Your Risk Profile</h2>
                     </div>
@@ -53,7 +51,10 @@
                         <p class="placeholder-text">Your results will appear here.</p>
                     </div>
                 </div>
-                <div class="card glass-card">
+            </div>
+
+            <div class="bottom-row">
+                <div class="card glass-card" id="solution-plan-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-shield-heart"></i> Your Personalized Solution Plan</h2>
                     </div>

@@ -104,16 +104,29 @@ body {
     max-width: 1300px;
     width: 100%;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr; /* As per your image for left and right column sizes */
-    gap: 30px;
-    align-items: stretch; /* Ensures cards stretch to fill height */
-}
-.left-column, .right-column {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
+
+.top-row {
+    display: flex;
+    gap: 30px;
+    align-items: stretch;
+}
+
+#risk-assessment-card {
+    flex: 2; /* Takes up 2/3 of the space */
+}
+
+#risk-profile-card {
+    flex: 1; /* Takes up 1/3 of the space */
+}
+
+.bottom-row {
+    display: flex;
+}
+
 .card {
     border-radius: 16px;
     border: 1px solid var(--border-color);
@@ -122,6 +135,7 @@ body {
     padding: 0; /* No padding on the card itself, padding handled internally */
     display: flex; /* For internal layout of card content */
     flex-direction: column; /* To make header and content stack */
+    width: 100%;
 }
 .glass-card { /* Applied to cards that need the glass effect */
     background: var(--glass-bg);
@@ -211,6 +225,6 @@ form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-gr
 
 /* Fix for dropdown options appearing white */
 .form-grid select option {
-    background: var(--card-dark); /* Dark background for dropdown options */
+    background: var(--dark-bg-start); /* Dark background for dropdown options */
     color: var(--text-primary);
 }
