@@ -191,7 +191,7 @@ form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-gr
 
 #risk-profile-content, #solution-content {
     padding: 0 30px 30px 30px;
-    flex-grow: 1; /* This makes the content area expand to fill the available space */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -232,4 +232,97 @@ form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-gr
 .form-grid select option {
     background: var(--dark-bg-start);
     color: var(--text-primary);
+}
+
+
+/* --- MOBILE RESPONSIVENESS (for screens up to 768px wide) --- */
+@media (max-width: 768px) {
+    .header-plate {
+        height: 80px; /* Slightly smaller header on mobile */
+        padding: 10px 0;
+    }
+    .header-content { gap: 10px; }
+    .header-content .icon { font-size: 2.5rem; }
+    .header-text h1 { font-size: 1.4rem; }
+    .header-text p { font-size: 0.85rem; }
+
+    .main-content {
+        padding-top: 100px; /* Adjust padding for smaller header */
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 20px;
+    }
+
+    .app-container {
+        gap: 20px; /* Reduce gap between cards */
+    }
+
+    .top-row {
+        flex-direction: column; /* Stack top cards vertically */
+        gap: 20px; /* Gap between stacked cards */
+    }
+
+    #risk-assessment-card,
+    #risk-profile-card,
+    #solution-plan-card {
+        flex: none; /* Remove flex sizing on mobile */
+        width: 100%; /* Make them take full width */
+    }
+
+    .card-header {
+        padding: 10px 15px; /* Smaller header padding */
+        margin-bottom: 15px; /* Reduce margin */
+    }
+    .card-header h2 { font-size: 1.1rem; }
+    .card-header i { font-size: 1.1rem; }
+
+    form { padding: 0 15px 20px 15px; } /* Smaller form padding */
+
+    .form-grid {
+        grid-template-columns: 1fr; /* Stack form inputs vertically */
+        gap: 15px; /* Reduce gap between inputs */
+    }
+    .form-grid label { font-size: 0.85rem; }
+    .form-grid input, .form-grid select {
+        padding: 10px 12px; /* Smaller input padding */
+        font-size: 0.9rem;
+    }
+
+    .predict-btn {
+        padding: 12px; /* Smaller button padding */
+        font-size: 1rem;
+        margin-top: 20px; /* Adjust button margin */
+    }
+
+    #risk-profile-content, #solution-content { padding: 0 15px 20px 15px; } /* Smaller content padding */
+
+    .chart-container { height: 180px; width: 180px; margin-bottom: 15px; }
+    .chart-text-percent { font-size: 2.2rem; }
+    .chart-text-label { font-size: 0.9rem; }
+
+    .risk-factors-list li { padding: 10px 0; font-size: 0.9rem; }
+
+    .solution-plan {
+        grid-template-columns: 1fr; /* Stack solution plan items vertically */
+        gap: 20px;
+    }
+    .solution-plan li { margin-bottom: 12px; }
+    .solution-plan .icon-circle {
+        width: 40px; height: 40px; font-size: 1.1rem;
+    }
+    .solution-plan .recommendation-text strong { font-size: 0.95rem; margin-bottom: 2px; }
+    .solution-plan .recommendation-text span { font-size: 0.85rem; }
+    .solution-chart-container { height: 200px; } /* Adjust chart size for mobile */
+
+    .placeholder-text { padding: 20px 10px; font-size: 0.9rem; }
+}
+
+/* Further reduce header size for very small phones if needed */
+@media (max-width: 480px) {
+    .header-plate { height: 70px; }
+    .header-content .icon { font-size: 2rem; }
+    .header-text h1 { font-size: 1.2rem; }
+    .header-text p { font-size: 0.75rem; }
+    .main-content { padding-top: 85px; padding-left: 10px; padding-right: 10px; }
+    .card-header h2 { font-size: 1rem; }
 }
