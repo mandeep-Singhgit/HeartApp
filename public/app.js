@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const userId = localStorage.getItem('userId') || 'defaultUser';
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        // If no user is logged in, redirect to the login page
+        window.location.href = 'index.html';
+        return; // Stop running the rest of the script
+    }
     
     const riskForm = document.getElementById('riskForm');
     const riskProfileContent = document.getElementById('risk-profile-content');
@@ -53,16 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
         displayRiskProfile(riskPercentage, riskLevel, riskFactors);
         displaySolutions(riskPercentage);
 
-        // Dummy API call (if you have a backend, uncomment and adjust)
-        /*
         try {
             await fetch('/api/assessments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, riskPercentage, riskLevel })
+                body: JSON.stringify({ ...formData, riskPercentage, riskLevel, riskScore: score })
             });
         } catch (error) { console.error('Error saving assessment:', error); }
-        */
+        
     });
 
     function displayRiskProfile(percentage, level, factors) {
@@ -179,9 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <canvas id="solutionDoughnutChart"></canvas>
                 </div>
             </div>`;
-     
-            
-            const ctx = document.getElementById('solutionDoughnutChart').getContext('2d');
+        
+        const ctx = document.getElementById('solutionDoughnutChart').getContext('2d');
         if (solutionChart) { solutionChart.destroy(); }
         solutionChart = new Chart(ctx, {
             type: 'doughnut',
