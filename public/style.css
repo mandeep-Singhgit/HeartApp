@@ -20,7 +20,7 @@ body {
     min-height: 100vh;
 }
 
-/* --- SHARED HEADER FOR ALL PAGES --- */
+/* --- SHARED HEADER --- */
 .header-plate {
     width: 100%;
     background-color: #c9302c;
@@ -46,7 +46,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    padding-top: 100px; /* Space for the fixed header */
+    padding-top: 140px; /* THIS IS THE FIX: Adds space for the header */
 }
 .auth-container { max-width: 400px; width: 100%; margin: auto; }
 .auth-card {
