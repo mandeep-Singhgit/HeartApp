@@ -36,19 +36,26 @@ body {
     height: 100px;
 }
 .header-content { display: flex; align-items: center; gap: 20px; color: var(--text-primary); }
-.header-content .icon { font-size: 3rem; text-shadow: 0 0 15px rgba(255, 71, 87, 0.7); /* GLOW FOR HEADER ICON */ }
+
+/* --- THIS IS THE CHANGE YOU REQUESTED --- */
+.header-content .icon {
+    font-size: 3rem;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); /* Added glow */
+}
 .header-text h1 {
     font-size: 1.8rem;
     font-weight: 700;
     margin: 0;
-    text-shadow: 0 0 10px rgba(255, 71, 87, 0.5); /* GLOW FOR H1 TEXT */
+    text-shadow: 0 0 10px rgba(0,0,0, 0.3); /* Added glow */
 }
 .header-text p {
     font-size: 1rem;
     margin: 5px 0 0 0;
     opacity: 0.9;
-    text-shadow: 0 0 8px rgba(255, 71, 87, 0.4); /* SLIGHT GLOW FOR P TEXT */
+    text-shadow: 0 0 8px rgba(0,0,0, 0.2); /* Added slight glow */
 }
+/* -------------------------------------- */
+
 
 /* --- LOGIN / SIGNUP PAGE STYLES --- */
 .auth-body {
@@ -82,6 +89,7 @@ body {
 .auth-switch { margin-top: 30px; font-size: 0.95rem; color: var(--text-secondary); }
 .auth-switch a { color: var(--primary-red); text-decoration: none; font-weight: 600; transition: color 0.3s ease; }
 .auth-switch a:hover { text-decoration: underline; color: var(--dark-red); }
+
 
 /* --- MAIN APP PAGE (HOME) SPECIFIC STYLES --- */
 .main-content { padding-top: 140px; padding-left: 40px; padding-right: 40px; padding-bottom: 40px; }
