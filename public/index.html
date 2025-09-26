@@ -8,21 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body class="auth-body">
-    <header class="header-plate">
-        <div class="header-content">
-            <i class="fa-solid fa-heart-pulse icon"></i>
-            <div class="header-text">
-                <h1>Heart Disease Risk Analyzer</h1>
-                <p>Advanced Health Assessment Tool</p>
-            </div>
-        </div>
-    </header>
-
     <div class="auth-container">
-        <div id="login-form" class="card glass-card">
-            <div class="card-header">
-                <h2><i class="fa-solid fa-right-to-bracket"></i> Welcome Back</h2>
-            </div>
+        <div id="login-form" class="auth-card glass-card">
+            <div class="auth-logo">
+                <i class="fa-solid fa-heart-circle-plus"></i> </div>
+            <h2 class="auth-title">Welcome Back!</h2>
+            <p class="auth-subtitle">Login to access the Health Analyzer.</p>
             <form id="login">
                 <div class="form-group">
                     <label for="login-email">Email Address</label>
@@ -32,15 +23,17 @@
                     <label for="login-password">Password</label>
                     <input type="password" id="login-password" placeholder="Enter your password" required>
                 </div>
-                <button type="submit" class="predict-btn">Login</button>
+                <button type="submit" class="auth-btn">
+                    Login <i class="fa-solid fa-arrow-right"></i> </button>
             </form>
             <div class="auth-switch">Don't have an account? <a href="#" id="show-register">Sign up here</a></div>
         </div>
 
-        <div id="register-form" class="card glass-card" style="display: none;">
-             <div class="card-header">
-                <h2><i class="fa-solid fa-user-plus"></i> Create Account</h2>
-            </div>
+        <div id="register-form" class="auth-card glass-card" style="display: none;">
+            <div class="auth-logo">
+                <i class="fa-solid fa-heart-circle-plus"></i> </div>
+            <h2 class="auth-title">Create Your Account</h2>
+            <p class="auth-subtitle">Start your health assessment journey.</p>
             <form id="register">
                 <div class="form-group">
                     <label for="register-username">Username</label>
@@ -54,7 +47,8 @@
                     <label for="register-password">Password</label>
                     <input type="password" id="register-password" placeholder="Create a strong password" required>
                 </div>
-                <button type="submit" class="predict-btn">Create Account</button>
+                <button type="submit" class="auth-btn">
+                    <i class="fa-solid fa-user-plus"></i> Create Account </button>
             </form>
             <div class="auth-switch">Already have an account? <a href="#" id="show-login">Login here</a></div>
         </div>
