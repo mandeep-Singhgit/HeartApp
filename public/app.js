@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             userId,
             age: parseInt(document.getElementById("age").value),
-            gender: document.getElementById("gender").value, // Added gender
             systolic: parseInt(document.getElementById("systolic").value),
             diastolic: parseInt(document.getElementById("diastolic").value),
             cholesterol: parseInt(document.getElementById("cholesterol").value),
@@ -27,21 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let score = 0;
         const riskFactors = [];
-
-        // Risk Factor Calculations
         if (formData.age > 50) score += 2;
-        if (formData.gender === "male" && formData.age > 45) score += 1; // Men at higher risk after 45
-        if (formData.gender === "female" && formData.age > 55) score += 1; // Women at higher risk after 55 (post-menopause)
-
         if (formData.systolic > 130 || formData.diastolic > 80) { score += 2; riskFactors.push("High Blood Pressure"); }
         if (formData.cholesterol > 200) { score += 2; riskFactors.push("High Cholesterol"); }
         if (formData.glucose > 100) { score += 1; riskFactors.push("High Glucose"); }
         if (formData.smoking) { score += 3; riskFactors.push("Smoking"); }
         if (formData.diabetes) { score += 3; riskFactors.push("Diabetes"); }
-        if (formData.exercise === "light" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
+        if (formData.exercise === "light" || formData.exercise === "none" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
         if (formData.familyHistory) { score += 2; riskFactors.push("Family History"); }
         
-        const maxScore = 16; // Adjust based on your scoring logic
+        const maxScore = 16;
         const riskPercentage = Math.min(Math.round((score / maxScore) * 100), 100);
 
         let riskLevel;
@@ -53,8 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         displayRiskProfile(riskPercentage, riskLevel, riskFactors);
         displaySolutions(riskPercentage);
 
-        // Dummy API call (if you have a backend, uncomment and adjust)
-        /*
         try {
             await fetch('/api/assessments', {
                 method: 'POST',
@@ -62,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ ...formData, riskPercentage, riskLevel })
             });
         } catch (error) { console.error('Error saving assessment:', error); }
-        */
     });
 
     function displayRiskProfile(percentage, level, factors) {
@@ -88,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (riskProfileChart) riskProfileChart.destroy();
         riskProfileChart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
-            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#ff4757', '#546e7a'], borderWidth: 0 }] },
+            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#e53935', '#546e7a'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false } } }
         });
     }
@@ -188,14 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: solutionData.chartLabels,
                 datasets: [{
                     data: solutionData.chartData,
-                    backgroundColor: ['#ff4757', '#5352ed', '#ffa502', '#2ed573', '#9b59b6'],
+                    backgroundColor: ['#e53935', '#1e88e5', '#fb8c00', '#43a047', '#8e24aa'],
                     borderColor: 'transparent',
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#bdc3c7', padding: 15, font: { size: 12 } } } },
+                plugins: { legend: { position: 'bottom', labels: { color: '#9e9e9e', padding: 15, font: { size: 12 } } } },
                 cutout: '70%'
             }
         });
