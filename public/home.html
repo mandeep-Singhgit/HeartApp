@@ -22,22 +22,22 @@
     <main class="main-content">
         <div class="app-container">
             <div class="left-column">
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-file-medical"></i> Risk Assessment</h2>
                     </div>
                     <form id="riskForm">
                         <div class="form-grid">
-                            <div><label>Age</label><input type="number" id="age" min="18" max="120" required></div>
-                            <div><label>Gender</label><select id="gender" required><option value="">Select</option><option value="male">Male</option><option value="female">Female</option></select></div>
-                            <div><label>Systolic BP</label><input type="number" id="systolic" required></div>
-                            <div><label>Diastolic BP</label><input type="number" id="diastolic" required></div>
-                            <div><label>Cholesterol</label><input type="number" id="cholesterol" required></div>
-                            <div><label>Glucose</label><input type="number" id="glucose" required></div>
-                            <div><label>Smoking</label><select id="smoking" required><option value="">Select</option><option value="yes">Yes</option><option value="no">No</option></select></div>
-                            <div><label>Diabetes</label><select id="diabetes"><option value="no">No</option><option value="yes">Yes</option></select></div>
-                            <div><label>Exercise</label><select id="exercise"><option value="sedentary">Sedentary</option><option value="light">Light</option><option value="moderate">Moderate</option><option value="active">Active</option></select></div>
-                            <div><label>Family History</label><select id="familyHistory"><option value="no">No</option><option value="yes">Yes</option></select></div>
+                            <div><label for="age">Age</label><input type="number" id="age" min="18" max="120" required></div>
+                            <div><label for="gender">Gender</label><select id="gender" required><option value="">Select</option><option value="male">Male</option><option value="female">Female</option></select></div>
+                            <div><label for="systolic">Systolic BP</label><input type="number" id="systolic" required></div>
+                            <div><label for="diastolic">Diastolic BP</label><input type="number" id="diastolic" required></div>
+                            <div><label for="cholesterol">Cholesterol</label><input type="number" id="cholesterol" required></div>
+                            <div><label for="glucose">Glucose</label><input type="number" id="glucose" required></div>
+                            <div><label for="smoking">Smoking</label><select id="smoking" required><option value="">Select</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                            <div><label for="diabetes">Diabetes</label><select id="diabetes"><option value="no">No</option><option value="yes">Yes</option></select></div>
+                            <div><label for="exercise">Exercise</label><select id="exercise"><option value="sedentary">Sedentary</option><option value="light">Light</option><option value="moderate">Moderate</option><option value="active">Active</option></select></div>
+                            <div><label for="familyHistory">Family History</label><select id="familyHistory"><option value="no">No</option><option value="yes">Yes</option></select></div>
                         </div>
                         <div><button type="submit" class="predict-btn"><span>Calculate & Analyze</span><i class="fa-solid fa-arrow-right"></i></button></div>
                     </form>
@@ -45,7 +45,7 @@
             </div>
 
             <div class="right-column">
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-chart-pie"></i> Your Risk Profile</h2>
                     </div>
@@ -53,7 +53,7 @@
                         <p class="placeholder-text">Your results will appear here.</p>
                     </div>
                 </div>
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-shield-heart"></i> Your Personalized Solution Plan</h2>
                     </div>
