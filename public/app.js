@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const solutionContent = document.getElementById('solution-content');
     
     let riskProfileChart = null;
-    let solutionChart = null; // Chart instance for the solution plan
+    let solutionChart = null;
 
     riskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             userId,
             age: parseInt(document.getElementById("age").value),
+            gender: document.getElementById("gender").value, // Added gender
             systolic: parseInt(document.getElementById("systolic").value),
             diastolic: parseInt(document.getElementById("diastolic").value),
             cholesterol: parseInt(document.getElementById("cholesterol").value),
@@ -24,30 +25,36 @@ document.addEventListener('DOMContentLoaded', () => {
             familyHistory: document.getElementById("familyHistory").value === "yes",
         };
         
-        // Corrected Risk Logic
         let score = 0;
         const riskFactors = [];
+
+        // Risk Factor Calculations
         if (formData.age > 50) score += 2;
+        if (formData.gender === "male" && formData.age > 45) score += 1; // Men at higher risk after 45
+        if (formData.gender === "female" && formData.age > 55) score += 1; // Women at higher risk after 55 (post-menopause)
+
         if (formData.systolic > 130 || formData.diastolic > 80) { score += 2; riskFactors.push("High Blood Pressure"); }
         if (formData.cholesterol > 200) { score += 2; riskFactors.push("High Cholesterol"); }
         if (formData.glucose > 100) { score += 1; riskFactors.push("High Glucose"); }
         if (formData.smoking) { score += 3; riskFactors.push("Smoking"); }
         if (formData.diabetes) { score += 3; riskFactors.push("Diabetes"); }
-        if (formData.exercise === "light" || formData.exercise === "none" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
+        if (formData.exercise === "light" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
         if (formData.familyHistory) { score += 2; riskFactors.push("Family History"); }
         
-        const maxScore = 16;
+        const maxScore = 16; // Adjust based on your scoring logic
         const riskPercentage = Math.min(Math.round((score / maxScore) * 100), 100);
 
         let riskLevel;
-        if (riskPercentage === 0) riskLevel = "Excellent"; // Special level for 0%
+        if (riskPercentage === 0) riskLevel = "Excellent";
         else if (riskPercentage <= 33) riskLevel = "Low";
         else if (riskPercentage <= 66) riskLevel = "Medium";
         else riskLevel = "High";
         
         displayRiskProfile(riskPercentage, riskLevel, riskFactors);
-        displaySolutions(riskPercentage); // Pass percentage to get specific suggestions
+        displaySolutions(riskPercentage);
 
+        // Dummy API call (if you have a backend, uncomment and adjust)
+        /*
         try {
             await fetch('/api/assessments', {
                 method: 'POST',
@@ -55,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ ...formData, riskPercentage, riskLevel })
             });
         } catch (error) { console.error('Error saving assessment:', error); }
+        */
     });
 
     function displayRiskProfile(percentage, level, factors) {
@@ -80,16 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (riskProfileChart) riskProfileChart.destroy();
         riskProfileChart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
-            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#ff4757', 'rgba(255,255,255,0.1)'], borderWidth: 0 }] },
+            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#ff4757', '#546e7a'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false } } }
         });
     }
 
-    // --- COMBINED AND IMPROVED SUGGESTIONS ---
     function displaySolutions(percentage) {
         let solutionData;
         
-        if (percentage === 0) { // Special suggestion for 0% risk
+        if (percentage === 0) {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-shield-heart', class: 'checkup', title: 'Maintain a Healthy Lifestyle', details: 'Keep up your excellent work with a balanced diet and regular exercise.' },
@@ -98,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chartData: [50, 50],
                 chartLabels: ['Healthy Life', 'Medical Check-ups']
             };
-        } else if (percentage <= 20) { // Very Low Risk
+        } else if (percentage <= 20) {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Excellent! Continue with routine annual check-ups.' },
@@ -108,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Continue with hobbies and relaxation techniques that work for you.' }
                 ]
             };
-        } else if (percentage <= 40) { // Low to Medium Risk
+        } else if (percentage <= 40) {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Good results. Discuss maintaining this lifestyle at your next annual check-up.' },
@@ -118,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Be mindful of stress. Practice relaxation techniques if you feel overwhelmed.' }
                 ]
             }
-        } else if (percentage <= 60) { // Medium Risk
+        } else if (percentage <= 60) {
              solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'It is advisable to schedule a check-up to discuss these results and preventative steps.' },
@@ -128,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Incorporate daily stress-reduction techniques like deep breathing or a 15-minute walk.' }
                 ]
             };
-        } else if (percentage <= 80) { // High Risk
+        } else if (percentage <= 80) {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Important: Schedule an appointment with your doctor soon to review these results.' },
@@ -138,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Actively practice stress-reduction techniques daily, as stress is now a major factor.' }
                 ]
             };
-        } else { // Very High Risk
+        } else {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Crucial: Schedule an appointment with your doctor as soon as possible for a full evaluation.' },
@@ -150,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
         
-        // This part remains the same
         if (!solutionData.chartData) {
             solutionData.chartData = [25, 25, 20, 20, 10];
             solutionData.chartLabels = ['Medical', 'Exercise', 'Diet', 'Sleep', 'Stress'];
@@ -189,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#bdc3c7', padding: 15, font: { size: 14 } } } },
+                plugins: { legend: { position: 'bottom', labels: { color: '#bdc3c7', padding: 15, font: { size: 12 } } } },
                 cutout: '70%'
             }
         });
