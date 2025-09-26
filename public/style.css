@@ -112,7 +112,7 @@ body {
 .top-row {
     display: flex;
     gap: 30px;
-    align-items: stretch;
+    align-items: stretch; /* This property makes the cards the same height */
 }
 
 #risk-assessment-card {
@@ -130,11 +130,10 @@ body {
 .card {
     border-radius: 16px;
     border: 1px solid var(--border-color);
-    height: 100%; /* Important for stretching */
     overflow: hidden;
-    padding: 0; /* No padding on the card itself, padding handled internally */
-    display: flex; /* For internal layout of card content */
-    flex-direction: column; /* To make header and content stack */
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* This makes the card content stack vertically and expand */
     width: 100%;
 }
 .glass-card { /* Applied to cards that need the glass effect */
@@ -154,12 +153,12 @@ body {
 .card-header h2 { margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--text-primary); }
 .card-header i { font-size: 1.2rem; color: var(--text-primary); }
 
-form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-grow: 1; } /* Added flex for form content */
+form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-grow: 1; }
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-bottom: auto; /* Pushes button to bottom if content is short */
+    margin-bottom: auto;
 }
 .form-grid label { font-weight: 500; margin-bottom: 8px; display: block; color: var(--text-secondary); font-size: 0.9rem; }
 .form-grid input, .form-grid select {
@@ -190,7 +189,13 @@ form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-gr
 }
 .predict-btn:hover { box-shadow: 0 0 20px rgba(255, 71, 87, 0.6); transform: translateY(-3px); }
 
-#risk-profile-content, #solution-content { padding: 0 30px 30px 30px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; } /* For vertical centering of content */
+#risk-profile-content, #solution-content {
+    padding: 0 30px 30px 30px;
+    flex-grow: 1; /* This makes the content area expand to fill the available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 .chart-container { position: relative; height: 200px; width: 200px; margin: 0 auto 20px auto; }
 .chart-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
 .chart-text-percent { font-size: 2.8rem; font-weight: 700; }
@@ -225,6 +230,6 @@ form { padding: 0 30px 30px 30px; display: flex; flex-direction: column; flex-gr
 
 /* Fix for dropdown options appearing white */
 .form-grid select option {
-    background: var(--dark-bg-start); /* Dark background for dropdown options */
+    background: var(--dark-bg-start);
     color: var(--text-primary);
 }

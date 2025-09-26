@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Important: Schedule an appointment with your doctor soon to review these results.' },
                     { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Engage in light to moderate exercise like daily walking, only after your doctor approves.' },
-                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Strictly focus on a diet low in saturated fats, cholesterol, and sodium. Avoid red meat.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Strictly focus on a diet low in saturated fats, cholesterol, and sodium. meat only.' },
                     { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Prioritize 8-9 hours of uninterrupted sleep every night to aid in recovery and reduce strain.' },
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Actively practice stress-reduction techniques daily, as stress is now a major factor.' }
                 ]
@@ -179,8 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <canvas id="solutionDoughnutChart"></canvas>
                 </div>
             </div>`;
-        
-        const ctx = document.getElementById('solutionDoughnutChart').getContext('2d');
+     
+            
+            const ctx = document.getElementById('solutionDoughnutChart').getContext('2d');
         if (solutionChart) { solutionChart.destroy(); }
         solutionChart = new Chart(ctx, {
             type: 'doughnut',
