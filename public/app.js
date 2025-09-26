@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+r('DOMContentLoaded', () => {
     const userId = localStorage.getItem('userId') || 'defaultUser';
     
     const riskForm = document.getElementById('riskForm');
@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const solutionContent = document.getElementById('solution-content');
     
     let riskProfileChart = null;
-    let solutionChart = null;
+    let solutionChart = null; // Chart instance for the solution plan
 
     riskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             familyHistory: document.getElementById("familyHistory").value === "yes",
         };
         
+        // Corrected Risk Logic
         let score = 0;
         const riskFactors = [];
         if (formData.age > 50) score += 2;
@@ -39,13 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const riskPercentage = Math.min(Math.round((score / maxScore) * 100), 100);
 
         let riskLevel;
-        if (riskPercentage === 0) riskLevel = "Excellent";
+        if (riskPercentage === 0) riskLevel = "Excellent"; // Special level for 0%
         else if (riskPercentage <= 33) riskLevel = "Low";
         else if (riskPercentage <= 66) riskLevel = "Medium";
         else riskLevel = "High";
         
         displayRiskProfile(riskPercentage, riskLevel, riskFactors);
-        displaySolutions(riskPercentage);
+        displaySolutions(riskPercentage); // Pass percentage to get specific suggestions
 
         try {
             await fetch('/api/assessments', {
@@ -79,15 +80,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (riskProfileChart) riskProfileChart.destroy();
         riskProfileChart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
-            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#e53935', '#546e7a'], borderWidth: 0 }] },
+            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#ff4757', 'rgba(255,255,255,0.1)'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false } } }
         });
     }
 
+    // --- COMBINED AND IMPROVED SUGGESTIONS ---
     function displaySolutions(percentage) {
         let solutionData;
         
-        if (percentage === 0) {
+        if (percentage === 0) { // Special suggestion for 0% risk
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-shield-heart', class: 'checkup', title: 'Maintain a Healthy Lifestyle', details: 'Keep up your excellent work with a balanced diet and regular exercise.' },
@@ -96,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chartData: [50, 50],
                 chartLabels: ['Healthy Life', 'Medical Check-ups']
             };
-        } else if (percentage <= 20) {
+        } else if (percentage <= 20) { // Very Low Risk
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Excellent! Continue with routine annual check-ups.' },
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Continue with hobbies and relaxation techniques that work for you.' }
                 ]
             };
-        } else if (percentage <= 40) {
+        } else if (percentage <= 40) { // Low to Medium Risk
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Good results. Discuss maintaining this lifestyle at your next annual check-up.' },
@@ -116,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Be mindful of stress. Practice relaxation techniques if you feel overwhelmed.' }
                 ]
             }
-        } else if (percentage <= 60) {
+        } else if (percentage <= 60) { // Medium Risk
              solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'It is advisable to schedule a check-up to discuss these results and preventative steps.' },
@@ -126,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Incorporate daily stress-reduction techniques like deep breathing or a 15-minute walk.' }
                 ]
             };
-        } else if (percentage <= 80) {
+        } else if (percentage <= 80) { // High Risk
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Important: Schedule an appointment with your doctor soon to review these results.' },
@@ -136,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Actively practice stress-reduction techniques daily, as stress is now a major factor.' }
                 ]
             };
-        } else {
+        } else { // Very High Risk
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Crucial: Schedule an appointment with your doctor as soon as possible for a full evaluation.' },
@@ -148,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
         
+        // This part remains the same
         if (!solutionData.chartData) {
             solutionData.chartData = [25, 25, 20, 20, 10];
             solutionData.chartLabels = ['Medical', 'Exercise', 'Diet', 'Sleep', 'Stress'];
@@ -179,14 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: solutionData.chartLabels,
                 datasets: [{
                     data: solutionData.chartData,
-                    backgroundColor: ['#e53935', '#1e88e5', '#fb8c00', '#43a047', '#8e24aa'],
+                    backgroundColor: ['#ff4757', '#5352ed', '#ffa502', '#2ed573', '#9b59b6'],
                     borderColor: 'transparent',
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#9e9e9e', padding: 15, font: { size: 12 } } } },
+                plugins: { legend: { position: 'bottom', labels: { color: '#bdc3c7', padding: 15, font: { size: 14 } } } },
                 cutout: '70%'
             }
         });
