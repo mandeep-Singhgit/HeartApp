@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heart Disease Risk Analyzer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body class="app-body">
-    <div class="header-plate">
+    <header class="header-plate">
         <div class="header-content">
             <i class="fa-solid fa-heart-pulse icon"></i>
             <div class="header-text">
@@ -17,83 +17,53 @@
                 <p>Advanced Health Assessment Tool</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="main-content">
-        <div class="container">
-            <nav class="navigation">
-                <button class="nav-btn active" data-page="home">Home</button>
-                <button class="nav-btn" data-page="graph">Solutions & Graph</button>
-            </nav>
-
-            <div id="home" class="page active">
-                <h1 class="app-title"><span class="icon">📝</span> Enter Your Health Data</h1>
-                <div class="disclaimer"><strong>Medical Disclaimer:</strong> This tool is for educational purposes only. Always consult a medical professional for advice.</div>
-
-                <form id="riskForm">
-                    <div class="card">
-                        <div class="section-title personal">Personal Information</div>
-                        <div class="form-grid">
-                            <div><label>Age <span class="required">*</span></label><input type="number" id="age" min="18" max="120" required></div>
-                            <div><label>Gender <span class="required">*</span></label><select id="gender" required><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option></select></div>
-                            
-                            <div><label>Height (feet)</label><input type="number" id="height_ft" placeholder="e.g. 5.6" step="0.1"></div>
-                            
-                            <div><label>Weight (kg)</label><input type="number" id="weight_kg" placeholder="e.g. 70"></div>
-                        </div>
+    <main class="main-content">
+        <div class="app-container">
+            <div class="top-row">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-file-medical"></i> Risk Assessment</h2>
                     </div>
-                    <div class="card">
-                        <div class="section-title metrics">Health Metrics</div>
+                    <form id="riskForm">
                         <div class="form-grid">
-                            <div><label>Systolic BP (mmHg) <span class="required">*</span></label><input type="number" id="systolic" placeholder="e.g. 120" required></div>
-                            <div><label>Diastolic BP (mmHg) <span class="required">*</span></label><input type="number" id="diastolic" placeholder="e.g. 80" required></div>
-                            <div><label>Cholesterol (mg/dL) <span class="required">*</span></label><input type="number" id="cholesterol" placeholder="e.g. 200" required></div>
-                            <div><label>Glucose (mg/dL) <span class="required">*</span></label><input type="number" id="glucose" placeholder="e.g. 100" required></div>
+                            <div><label>Age</label><input type="number" id="age" min="18" max="120" required></div>
+                            <div><label>Gender</label><select id="gender" required><option value="">Select</option><option value="male">Male</option><option value="female">Female</option></select></div>
+                            <div><label>Systolic BP</label><input type="number" id="systolic" required></div>
+                            <div><label>Diastolic BP</label><input type="number" id="diastolic" required></div>
+                            <div><label>Cholesterol</label><input type="number" id="cholesterol" required></div>
+                            <div><label>Glucose</label><input type="number" id="glucose" required></div>
+                            <div><label>Smoking</label><select id="smoking" required><option value="">Select</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                            <div><label>Diabetes</label><select id="diabetes"><option value="no">No</option><option value="yes">Yes</option></select></div>
+                            <div><label>Exercise</label><select id="exercise"><option value="none">Sedentary</option><option value="light">Light</option><option value="moderate">Moderate</option><option value="active">Active</option></select></div>
+                            <div><label>Family History</label><select id="familyHistory"><option value="no">No</option><option value="yes">Yes</option></select></div>
                         </div>
+                        <div><button type="submit" class="predict-btn"><span>Calculate & Analyze</span><i class="fa-solid fa-arrow-right"></i></button></div>
+                    </form>
+                </div>
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-pie"></i> Your Risk Profile</h2>
                     </div>
-                    <div class="card">
-                        <div class="section-title lifestyle">Lifestyle & Medical History</div>
-                        <div class="form-grid">
-                            <div><label>Smoking Status <span class="required">*</span></label><select id="smoking" required><option value="">Select status</option><option value="yes">Smoker</option><option value="no">Non-smoker</option></select></div>
-                            <div><label>Diabetes Status <span class="required">*</span></label><select id="diabetes"><option value="no">No diabetes</option><option value="yes">Has diabetes</option></select></div>
-                            <div>
-                                <label>Exercise Frequency</label>
-                                <select id="exercise">
-                                    <option value="none">None (Sedentary)</option>
-                                    <option value="light">Light (1-2 times/week)</option>
-                                    <option value="moderate">Moderate (3-4 times/week)</option>
-                                    <option value="active">Active (5-6 times/week)</option>
-                                    <option value="very_active">Very Active (Daily)</option>
-                                </select>
-                            </div>
-                            <div><label>Family History</label><select id="familyHistory"><option value="no">No family history</option><option value="yes">Yes, family history</option></select></div>
-                        </div>
-                    </div>
-                    <div style="text-align:center;"><button type="submit" class="predict-btn">Calculate Risk & Save</button></div>
-                </form>
-                <div id="results" class="results-section">
-                    <h2>Risk Assessment Results</h2>
-                    <div id="riskScore" class="risk-score">--%</div>
-                    <div id="riskMessage"></div>
-                    <div class="risk-details">
-                        <h3>Contributing Factors:</h3>
-                        <ul id="riskFactors"></ul>
-                        <div class="recommendations"><h3>Recommendations:</h3><p id="recommendations"></p></div>
+                    <div id="risk-profile-content">
+                        <p class="placeholder-text">Your results will appear here.</p>
                     </div>
                 </div>
             </div>
 
-            <div id="graph" class="page">
-                <h1 class="app-title">📊 Your Personalized Solution Plan</h1>
-                <div class="chart-container"><canvas id="solutionChart"></canvas></div>
-                <div id="solutionPlan" class="solution-plan">
-                    <h3>Your Weekly Action Plan</h3>
-                    <p>Based on your latest assessment, here are some recommended weekly targets to improve cardiovascular health:</p>
-                    <ul id="solutionList"><li>Loading recommendations...</li></ul>
+            <div class="bottom-row">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-shield-heart"></i> Your Personalized Solution Plan</h2>
+                    </div>
+                    <div id="solution-content">
+                        <p class="placeholder-text">Your personalized plan will appear here.</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
     <script src="app.js"></script>
 </body>
 </html>

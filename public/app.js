@@ -1,38 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        alert("You are not logged in. Redirecting to login page.");
-        window.location.href = '/';
-        return;
-    }
-    const pages = document.querySelectorAll('.page');
-    const navButtons = document.querySelectorAll('.nav-btn');
+    const userId = localStorage.getItem('userId') || 'defaultUser';
+    
     const riskForm = document.getElementById('riskForm');
-    let solutionChart = null;
-    let latestAssessment = null;
-
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetPage = button.getAttribute('data-page');
-            pages.forEach(page => page.classList.remove('active'));
-            document.getElementById(targetPage).classList.add('active');
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            // --- THIS IS THE FIX ---
-            if (targetPage === 'graph') {
-                // Add a short delay to make sure the canvas is visible before drawing
-                setTimeout(fetchLatestAssessmentAndDrawChart, 100);
-            }
-        });
-    });
+    const riskProfileContent = document.getElementById('risk-profile-content');
+    const solutionContent = document.getElementById('solution-content');
+    
+    let riskProfileChart = null;
+    let solutionChart = null; // Chart instance for the solution plan
 
     riskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const formData = {
-            userId: userId,
+            userId,
             age: parseInt(document.getElementById("age").value),
-            gender: document.getElementById("gender").value,
             systolic: parseInt(document.getElementById("systolic").value),
             diastolic: parseInt(document.getElementById("diastolic").value),
             cholesterol: parseInt(document.getElementById("cholesterol").value),
@@ -42,112 +23,174 @@ document.addEventListener('DOMContentLoaded', () => {
             exercise: document.getElementById("exercise").value,
             familyHistory: document.getElementById("familyHistory").value === "yes",
         };
+        
+        // Corrected Risk Logic
         let score = 0;
-        let riskFactors = [];
-        if (formData.age > 50) { score += 2; riskFactors.push("Older age"); }
-        if (formData.systolic > 140 || formData.diastolic > 90) { score += 2; riskFactors.push("High blood pressure"); }
-        if (formData.cholesterol > 240) { score += 2; riskFactors.push("High cholesterol"); }
-        if (formData.glucose > 126) { score += 2; riskFactors.push("High glucose"); }
-        if (formData.smoking) { score += 2; riskFactors.push("Smoking"); }
-        if (formData.diabetes) { score += 2; riskFactors.push("Diabetes"); }
-        if (formData.exercise === "none") { score += 1; riskFactors.push("Lack of exercise"); }
-        if (formData.familyHistory) { score += 2; riskFactors.push("Family history"); }
-        formData.riskScore = score;
-        formData.riskPercentage = Math.min(score * 10, 100);
-        displayResults(formData, riskFactors);
+        const riskFactors = [];
+        if (formData.age > 50) score += 2;
+        if (formData.systolic > 130 || formData.diastolic > 80) { score += 2; riskFactors.push("High Blood Pressure"); }
+        if (formData.cholesterol > 200) { score += 2; riskFactors.push("High Cholesterol"); }
+        if (formData.glucose > 100) { score += 1; riskFactors.push("High Glucose"); }
+        if (formData.smoking) { score += 3; riskFactors.push("Smoking"); }
+        if (formData.diabetes) { score += 3; riskFactors.push("Diabetes"); }
+        if (formData.exercise === "light" || formData.exercise === "none" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
+        if (formData.familyHistory) { score += 2; riskFactors.push("Family History"); }
+        
+        const maxScore = 16;
+        const riskPercentage = Math.min(Math.round((score / maxScore) * 100), 100);
+
+        let riskLevel;
+        if (riskPercentage === 0) riskLevel = "Excellent"; // Special level for 0%
+        else if (riskPercentage <= 33) riskLevel = "Low";
+        else if (riskPercentage <= 66) riskLevel = "Medium";
+        else riskLevel = "High";
+        
+        displayRiskProfile(riskPercentage, riskLevel, riskFactors);
+        displaySolutions(riskPercentage); // Pass percentage to get specific suggestions
+
         try {
-            const response = await fetch('/api/assessments', {
+            await fetch('/api/assessments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, riskPercentage, riskLevel })
             });
-            if (response.ok) {
-                console.log('Assessment saved successfully!');
-                latestAssessment = await response.json();
-            } else { console.error('Failed to save assessment.'); }
-        } catch (error) { console.error('Error:', error); }
+        } catch (error) { console.error('Error saving assessment:', error); }
     });
 
-    function displayResults(data, riskFactors) {
-        let riskMessage, riskClass, recommendations;
-        if (data.riskScore <= 2) {
-            riskMessage = "✅ Low Risk"; riskClass = "low";
-            recommendations = "Maintain a healthy lifestyle with a balanced diet and regular exercise.";
-            data.riskLevel = "Low";
-        } else if (data.riskScore <= 5) {
-            riskMessage = "⚠️ Medium Risk"; riskClass = "medium";
-            recommendations = "Adopt healthier habits, monitor blood pressure and cholesterol, and consult your doctor.";
-            data.riskLevel = "Medium";
+    function displayRiskProfile(percentage, level, factors) {
+        riskProfileContent.innerHTML = `
+            <div class="chart-container" id="risk-profile-chart-container">
+                <div class="chart-text">
+                    <div class="chart-text-percent ${level.toLowerCase()}">${percentage}%</div>
+                    <div class="chart-text-label">${level} Risk</div>
+                </div>
+            </div>
+            <ul class="risk-factors-list"></ul>
+        `;
+        const canvas = document.createElement('canvas');
+        document.getElementById('risk-profile-chart-container').appendChild(canvas);
+
+        const factorList = riskProfileContent.querySelector('.risk-factors-list');
+        if (factors.length > 0) {
+            factorList.innerHTML = factors.map(factor => `<li><span>${factor}</span><i class="fa-solid fa-triangle-exclamation"></i></li>`).join('');
         } else {
-            riskMessage = "❌ High Risk"; riskClass = "high";
-            recommendations = "Seek medical guidance. Consider lifestyle changes and active monitoring.";
-            data.riskLevel = "High";
+            factorList.innerHTML = '<li>No major risk factors identified.</li>';
         }
-        document.getElementById("results").style.display = "block";
-        document.getElementById("riskScore").textContent = data.riskPercentage + "%";
-        document.getElementById("riskScore").className = "risk-score " + riskClass;
-        document.getElementById("riskMessage").textContent = riskMessage;
-        document.getElementById("recommendations").textContent = recommendations;
-        const riskList = document.getElementById("riskFactors");
-        riskList.innerHTML = "";
-        riskFactors.forEach(factor => {
-            let li = document.createElement("li");
-            li.textContent = factor;
-            riskList.appendChild(li);
+
+        if (riskProfileChart) riskProfileChart.destroy();
+        riskProfileChart = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: { datasets: [{ data: [percentage, 100 - percentage], backgroundColor: ['#ff4757', 'rgba(255,255,255,0.1)'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false } } }
         });
-        document.getElementById("results").scrollIntoView({ behavior: 'smooth' });
     }
 
-    async function fetchLatestAssessmentAndDrawChart() {
-        if (!latestAssessment) {
-            try {
-                const response = await fetch(`/api/assessments/${userId}`);
-                const allData = await response.json();
-                if (allData.length > 0) {
-                    latestAssessment = allData[0];
-                } else {
-                    document.getElementById('solutionList').innerHTML = '<li>No assessment data found. Please complete the form on the Home page first.</li>';
-                    return;
-                }
-            } catch (error) { console.error('Failed to fetch data:', error); return; }
+    // --- COMBINED AND IMPROVED SUGGESTIONS ---
+    function displaySolutions(percentage) {
+        let solutionData;
+        
+        if (percentage === 0) { // Special suggestion for 0% risk
+            solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-shield-heart', class: 'checkup', title: 'Maintain a Healthy Lifestyle', details: 'Keep up your excellent work with a balanced diet and regular exercise.' },
+                    { icon: 'fa-solid fa-stethoscope', class: 'exercise', title: 'Consult Your Doctor Regularly', details: 'Continue with your regular annual check-ups to stay proactive.' }
+                ],
+                chartData: [50, 50],
+                chartLabels: ['Healthy Life', 'Medical Check-ups']
+            };
+        } else if (percentage <= 20) { // Very Low Risk
+            solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Excellent! Continue with routine annual check-ups.' },
+                    { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Keep up your great work. Aim for 3-5 active days per week.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Your current diet is likely very good. Continue focusing on whole foods.' },
+                    { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Maintain a consistent 7-9 hours of sleep for optimal health.' },
+                    { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Continue with hobbies and relaxation techniques that work for you.' }
+                ]
+            };
+        } else if (percentage <= 40) { // Low to Medium Risk
+            solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Good results. Discuss maintaining this lifestyle at your next annual check-up.' },
+                    { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Aim for 150+ minutes of cardio weekly to maintain your low risk.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Ensure your diet is balanced with lean proteins, fruits, and vegetables.' },
+                    { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'A consistent 7-8 hours of sleep is key. Avoid late-night screen time.' },
+                    { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Be mindful of stress. Practice relaxation techniques if you feel overwhelmed.' }
+                ]
+            }
+        } else if (percentage <= 60) { // Medium Risk
+             solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'It is advisable to schedule a check-up to discuss these results and preventative steps.' },
+                    { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Increase your weekly cardio to 180+ minutes. Add 2 strength training sessions.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Begin to actively reduce your intake of sodium and processed sugars. Monitor portion sizes.' },
+                    { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Prioritize a consistent 8 hours of sleep to help your body manage stress and repair.' },
+                    { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Incorporate daily stress-reduction techniques like deep breathing or a 15-minute walk.' }
+                ]
+            };
+        } else if (percentage <= 80) { // High Risk
+            solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Important: Schedule an appointment with your doctor soon to review these results.' },
+                    { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Engage in light to moderate exercise like daily walking, only after your doctor approves.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Strictly focus on a diet low in saturated fats, cholesterol, and sodium. Avoid red meat.' },
+                    { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Prioritize 8-9 hours of uninterrupted sleep every night to aid in recovery and reduce strain.' },
+                    { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Actively practice stress-reduction techniques daily, as stress is now a major factor.' }
+                ]
+            };
+        } else { // Very High Risk
+            solutionData = {
+                recommendations: [
+                    { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Crucial: Schedule an appointment with your doctor as soon as possible for a full evaluation.' },
+                    { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Do not start any new exercise plan without explicit approval and guidance from your doctor.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Immediate and strict adherence to a heart-healthy diet is critical. Seek nutritional advice.' },
+                    { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Maximum rest is essential. Aim for 9+ hours of sleep to help your body cope.' },
+                    { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Eliminate as many stressors as possible. Professional guidance may be necessary.' }
+                ]
+            };
         }
-        drawSolutionChart(latestAssessment);
-    }
-    
-    function drawSolutionChart(data) {
-        const ctx = document.getElementById('solutionChart').getContext('2d');
-        const solutionList = document.getElementById('solutionList');
-        let chartData, solutionText;
-        if (data.riskLevel === "Low") {
-            chartData = [150, 60, 49, 30, 14];
-            solutionText = `<li><strong>Cardio:</strong> Aim for 150 minutes of moderate activity per week.</li><li><strong>Strength Training:</strong> Incorporate 2 sessions (60 min total) per week.</li><li><strong>Sleep:</strong> Ensure 7 hours (49 total) per night.</li><li><strong>Meditation:</strong> Practice mindfulness for 30 minutes weekly.</li><li><strong>Healthy Meals:</strong> Focus on 14 balanced, healthy meals.</li>`;
-        } else if (data.riskLevel === "Medium") {
-            chartData = [180, 90, 52, 60, 18];
-            solutionText = `<li><strong>Cardio:</strong> Increase to 180 minutes of activity per week.</li><li><strong>Strength Training:</strong> Aim for 3 sessions (90 min total) per week.</li><li><strong>Sleep:</strong> Prioritize 7.5 hours (52 total) per night.</li><li><strong>Meditation:</strong> Practice mindfulness for 60 minutes weekly to manage stress.</li><li><strong>Healthy Meals:</strong> Focus on 18 balanced, low-sodium meals.</li>`;
-        } else {
-            chartData = [200, 120, 56, 90, 21];
-            solutionText = `<li><strong>Cardio:</strong> Aim for 200+ minutes of gentle activity per week (consult a doctor).</li><li><strong>Strength Training:</strong> Focus on 3-4 light sessions (120 min total).</li><li><strong>Sleep:</strong> Target 8 hours (56 total) per night for recovery.</li><li><strong>Meditation:</strong> Critical for stress reduction, aim for 90 minutes weekly.</li><li><strong>Healthy Meals:</strong> Strictly follow a heart-healthy diet for all 21 main meals.</li>`;
+        
+        // This part remains the same
+        if (!solutionData.chartData) {
+            solutionData.chartData = [25, 25, 20, 20, 10];
+            solutionData.chartLabels = ['Medical', 'Exercise', 'Diet', 'Sleep', 'Stress'];
         }
-        solutionList.innerHTML = solutionText;
+
+        const recommendationsHTML = solutionData.recommendations.map(item => `
+            <li>
+                <span class="icon-circle ${item.class}"><i class="${item.icon}"></i></span>
+                <div class="recommendation-text">
+                    <strong>${item.title}</strong>
+                    <span>${item.details}</span>
+                </div>
+            </li>
+        `).join('');
+
+        solutionContent.innerHTML = `
+            <div class="solution-plan">
+                <ul>${recommendationsHTML}</ul>
+                <div class="solution-chart-container">
+                    <canvas id="solutionDoughnutChart"></canvas>
+                </div>
+            </div>`;
+        
+        const ctx = document.getElementById('solutionDoughnutChart').getContext('2d');
         if (solutionChart) { solutionChart.destroy(); }
         solutionChart = new Chart(ctx, {
-            type: 'radar',
+            type: 'doughnut',
             data: {
-                labels: ['Cardio (mins)', 'Strength (mins)', 'Sleep (hours)', 'Meditation (mins)', 'Healthy Meals'],
+                labels: solutionData.chartLabels,
                 datasets: [{
-                    label: 'Your Weekly Health Plan',
-                    data: chartData,
-                    backgroundColor: 'rgba(217, 83, 79, 0.2)',
-                    borderColor: 'rgba(217, 83, 79, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(217, 83, 79, 1)'
+                    data: solutionData.chartData,
+                    backgroundColor: ['#ff4757', '#5352ed', '#ffa502', '#2ed573', '#9b59b6'],
+                    borderColor: 'transparent',
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { r: { angleLines: { display: false }, suggestedMin: 0, pointLabels: { font: { size: 14 } } } },
-                plugins: { legend: { position: 'top' } }
+                plugins: { legend: { position: 'bottom', labels: { color: '#bdc3c7', padding: 15, font: { size: 14 } } } },
+                cutout: '70%'
             }
         });
     }
