@@ -13,13 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let riskProfileChart = null;
     let solutionChart = null;
 
+    // MODIFIED: This event listener now collects raw data and calls the API
     riskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const formData = {
+        const rawFormData = { // Collect raw data
             userId,
             age: parseInt(document.getElementById("age").value),
-            gender: document.getElementById("gender").value, // Added gender
+            gender: document.getElementById("gender").value,
             systolic: parseInt(document.getElementById("systolic").value),
             diastolic: parseInt(document.getElementById("diastolic").value),
             cholesterol: parseInt(document.getElementById("cholesterol").value),
@@ -30,42 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
             familyHistory: document.getElementById("familyHistory").value === "yes",
         };
         
-        let score = 0;
-        const riskFactors = [];
-
-        // Risk Factor Calculations
-        if (formData.age > 50) score += 2;
-        if (formData.gender === "male" && formData.age > 45) score += 1; // Men at higher risk after 45
-        if (formData.gender === "female" && formData.age > 55) score += 1; // Women at higher risk after 55 (post-menopause)
-
-        if (formData.systolic > 130 || formData.diastolic > 80) { score += 2; riskFactors.push("High Blood Pressure"); }
-        if (formData.cholesterol > 200) { score += 2; riskFactors.push("High Cholesterol"); }
-        if (formData.glucose > 100) { score += 1; riskFactors.push("High Glucose"); }
-        if (formData.smoking) { score += 3; riskFactors.push("Smoking"); }
-        if (formData.diabetes) { score += 3; riskFactors.push("Diabetes"); }
-        if (formData.exercise === "light" || formData.exercise === "sedentary") { score += 1; riskFactors.push("Limited Physical Activity"); }
-        if (formData.familyHistory) { score += 2; riskFactors.push("Family History"); }
-        
-        const maxScore = 16; // Adjust based on your scoring logic
-        const riskPercentage = Math.min(Math.round((score / maxScore) * 100), 100);
-
-        let riskLevel;
-        if (riskPercentage === 0) riskLevel = "Excellent";
-        else if (riskPercentage <= 33) riskLevel = "Low";
-        else if (riskPercentage <= 66) riskLevel = "Medium";
-        else riskLevel = "High";
-        
-        displayRiskProfile(riskPercentage, riskLevel, riskFactors);
-        displaySolutions(riskPercentage);
-
         try {
-            await fetch('/api/assessments', {
+            // CALL THE DEDICATED API ENDPOINT
+            const response = await fetch('/api/assessments', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, riskPercentage, riskLevel, riskScore: score })
+                body: JSON.stringify(rawFormData) 
             });
-        } catch (error) { console.error('Error saving assessment:', error); }
-        
+
+            const result = await response.json(); // Get the calculated result object
+
+            if (response.ok) {
+                // Display results using the dynamic data from the API
+                displayRiskProfile(result.riskPercentage, result.riskLevel, result.riskFactors);
+                displaySolutions(result); // Pass the entire calculated object for deep personalization
+            } else {
+                console.error('API Error:', result.message);
+            }
+        } catch (error) { 
+            console.error('Network or Calculation Error:', error); 
+        }
     });
 
     function displayRiskProfile(percentage, level, factors) {
@@ -96,17 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function displaySolutions(percentage) {
+    // MODIFIED: This function now reads the individual High/Medium/Low statuses for deep personalization
+    function displaySolutions(result) { 
+        const percentage = result.riskPercentage;
+        const factors = result.riskFactors; 
+        const bpStatus = result.bp_status; 
+        const cholesterolStatus = result.cholesterol_status; 
+        const glucoseStatus = result.glucose_status; 
+
         let solutionData;
         
+        // --- General Advice based on Overall Risk Level ---
         if (percentage === 0) {
             solutionData = {
                 recommendations: [
                     { icon: 'fa-solid fa-shield-heart', class: 'checkup', title: 'Maintain a Healthy Lifestyle', details: 'Keep up your excellent work with a balanced diet and regular exercise.' },
                     { icon: 'fa-solid fa-stethoscope', class: 'exercise', title: 'Consult Your Doctor Regularly', details: 'Continue with your regular annual check-ups to stay proactive.' }
                 ],
-                chartData: [50, 50],
-                chartLabels: ['Healthy Life', 'Medical Check-ups']
             };
         } else if (percentage <= 20) {
             solutionData = {
@@ -143,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 recommendations: [
                     { icon: 'fa-solid fa-stethoscope', class: 'checkup', title: 'Consult Your Doctor', details: 'Important: Schedule an appointment with your doctor soon to review these results.' },
                     { icon: 'fa-solid fa-person-walking', class: 'exercise', title: 'Doctor-Approved Activity', details: 'Engage in light to moderate exercise like daily walking, only after your doctor approves.' },
-                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Strictly focus on a diet low in saturated fats, cholesterol, and sodium. meat only.' },
+                    { icon: 'fa-solid fa-apple-whole', class: 'diet', title: 'Adopt a Heart-Healthy Diet', details: 'Strictly focus on a diet low in saturated fats, cholesterol, and sodium. Prioritize lean proteins, vegetables, and whole grains.' },
                     { icon: 'fa-solid fa-bed', class: 'sleep', title: 'Sleeping Schedule', details: 'Prioritize 8-9 hours of uninterrupted sleep every night to aid in recovery and reduce strain.' },
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Actively practice stress-reduction techniques daily, as stress is now a major factor.' }
                 ]
@@ -158,6 +149,57 @@ document.addEventListener('DOMContentLoaded', () => {
                     { icon: 'fa-solid fa-brain', class: 'stress', title: 'Stress Management', details: 'Eliminate as many stressors as possible. Professional guidance may be necessary.' }
                 ]
             };
+        }
+
+        // --- Personalized Logic using Statuses from API ---
+        const factorsMap = new Set(factors); 
+        const criticalRecommendations = [];
+        
+        // 1. Smoking Check (Highest Priority)
+        if (factorsMap.has("Smoking")) {
+            criticalRecommendations.push({ 
+                icon: 'fa-solid fa-ban', class: 'checkup', 
+                title: 'IMMEDIATE ACTION: QUIT SMOKING', 
+                details: 'Smoking is the single highest modifiable risk. Seek medical and counseling support now.' 
+            });
+        }
+
+        // 2. Blood Pressure Check
+        if (bpStatus === "High") {
+            criticalRecommendations.push({ 
+                icon: 'fa-solid fa-house-medical-circle-exclamation', class: 'checkup', 
+                title: 'URGENT: Consult for Blood Pressure Management', 
+                details: `Your BP levels are in the HIGH range. Schedule an immediate consultation for medication and management strategies.` 
+            });
+        } else if (bpStatus === "Medium" && percentage > 33) {
+            criticalRecommendations.push({ 
+                icon: 'fa-solid fa-notes-medical', class: 'checkup', 
+                title: 'Action Needed: Monitor Blood Pressure', 
+                details: `Your BP is in the MEDIUM range. Start regular monitoring and discuss lifestyle changes with your doctor.` 
+            });
+        }
+
+        // 3. Cholesterol Check
+        if (cholesterolStatus === "High" && percentage > 40) {
+            criticalRecommendations.push({ 
+                icon: 'fa-solid fa-bowl-food', class: 'diet', 
+                title: 'PRIORITY: Intensive Diet & Cholesterol Review', 
+                details: `Your Cholesterol is HIGH. Focus on a strict, low-fat, high-fiber diet, and follow up with a blood panel.` 
+            });
+        }
+        
+        // 4. Glucose/Diabetes Check
+        if (glucoseStatus === "High" || factorsMap.has("Diabetes")) {
+            criticalRecommendations.push({ 
+                icon: 'fa-solid fa-syringe', class: 'checkup', 
+                title: 'PRIORITY: Diabetes Control Plan', 
+                details: 'Strict glucose monitoring and adherence to your doctor’s diabetes management plan is essential.' 
+            });
+        }
+        
+        // Inject the critical, factor-specific recommendations at the start of the list
+        if (criticalRecommendations.length > 0) {
+            solutionData.recommendations = criticalRecommendations.concat(solutionData.recommendations);
         }
         
         if (!solutionData.chartData) {
